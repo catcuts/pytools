@@ -6,17 +6,7 @@ import re
 fp = os.path.join(os.getcwd(), "test.conf")
 
 
-def change_network_conf(ip, netmask, gateway, dev="", dns_prefer="", dns_alter=""):
-
-    def code_netmask(netmask):  # eg: "255.255.255.0" -> "24"
-        netmask_parts = netmask.split(".")
-        code = 0
-        try:
-            for part in netmask_parts:
-                code += bin(int(part)).count("1")
-        except:
-            code = ""
-        return str(code)
+def get_network_conf(dev):
 
     def decode_netmask(code):  # eg: "24" -> "255.255.255.0"
         code = code.replace("/", "")
@@ -38,34 +28,21 @@ def change_network_conf(ip, netmask, gateway, dev="", dns_prefer="", dns_alter="
     # r_dns = re.compile("[^#]\\s*(static\\sdomain_name_servers=.*)")  # dns地址
 
     #  初始化
-    line_head = "interface " + dev
-    line_ipnm = " static ip_address=" + ip + "/" + code_netmask(netmask)
-    line_gw = " static routers=" + gateway
-    if dns_prefer:
-        line_dns = " static domain_name_servers=" + dns_prefer + " " + dns_alter
-    else:
-        line_dns = ""
+    netconf = {"dev": {"ip": "", "nm": "", "gw": ""}} 
 
-    #  构造新配置区
-    new_netconf = "\n".join([line_head, line_ipnm, line_gw, line_dns])
-
-    #  新配置替换原配置
+    #  生成网络配置字典
     with open(fp, "r") as f:
         fc = f.read()
         m_netconf = re.search(r_netconf, fc)
-        if m_netconf:  # 找到原配置则替换
-            fc = re.sub(r_netconf, new_netconf, fc)
-        else:  # 没有原配置则追加
-            fc = fc + "\n\n" + new_netconf
+        if m_netconf:
+            netconf["dev"] = m_netconf.group(1)
+            netconf["ip"] = m_netconf.group(2)
+            netconf["nm"] = decode_netmask(m_netconf.group(3))
+            netconf["gw"] = m_netconf.group(4)
+            if len(m_netconf.groups()) == 5: netconf["dns"] = m_netconf.group(5)
 
-    #  写入配置文件
-    with open(fp, "w") as f:
-        f.write(fc)
+    #  返回网络设置字典
+    return netconf
 
-    if m_netconf:
-        return m_netconf.groups()
-    else:
-        return "no matched"
-        
 if __name__ == "__main__":
     pass
