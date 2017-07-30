@@ -18,8 +18,8 @@ def get_network_conf(dev):
         netmask = netmask[:-1]
         return netmask
 
-    #  整区匹配
-    r_netconf = re.compile("interface\\s(" + dev + ")\\s*\\n\\s*static\\sip_address\\s*=(.*)/(.*)\\n\\s*static\\srouters\\s*=(.*)\\n\\s*static\\sdomain_name_servers\\s*=(.*)*\\n*")
+    #  整区匹配 \n[^#]*\s*interface\s(eth0)\s*\n\s*static\sip_address\s*=([^/]*)/(.*)\n\s*static\srouters\s*=(.*)\n\s*(static\sdomain_name_servers\s*=(.*))?\n*
+    r_netconf = re.compile("\n[^#]*interface\\s(" + dev + ")\\s*\\n\\s*static\\sip_address\\s*=(.*)/(.*)\\n\\s*static\\srouters\\s*=(.*)\\n\\s*(static\\sdomain_name_servers\\s*=(.*))?\\n*")
 
     #  分段匹配
     # r_head = re.compile("[^#]interface\\s*(" + dev + ")\\s*")  #  网卡设备
@@ -39,7 +39,7 @@ def get_network_conf(dev):
             netconf["ip"] = m_netconf.group(2)
             netconf["nm"] = decode_netmask(m_netconf.group(3))
             netconf["gw"] = m_netconf.group(4)
-            if len(m_netconf.groups()) == 5: netconf["dns"] = m_netconf.group(5)
+            if len(m_netconf.groups()) == 6: netconf["dns"] = m_netconf.group(6)
 
     #  返回网络设置字典
     return netconf
