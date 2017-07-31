@@ -7,11 +7,8 @@
 
 import unittest
 import os
-from changeNetwork import change_network_conf
-from getNetwork import get_network_conf
-
-fp = os.getcwd() + "test.conf"
-
+from network.bin.changeNetwork import change_network_conf
+from network.bin.getNetwork import get_network_conf
 
 class unitTest(unittest.TestCase):
     

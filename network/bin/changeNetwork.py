@@ -3,10 +3,9 @@
 import os
 import re
 
-fp = os.path.join(os.getcwd(), "test.conf")
+from network.var import path, regexp
 
-
-def change_network_conf(ip, netmask, gateway, dev="", dns_prefer="", dns_alter=""):
+def change_network_conf(ip, netmask, gateway, dev="eth0", dns_prefer="", dns_alter=""):
 
     def code_netmask(netmask):  # eg: "255.255.255.0" -> "24"
         netmask_parts = netmask.split(".")
@@ -18,8 +17,10 @@ def change_network_conf(ip, netmask, gateway, dev="", dns_prefer="", dns_alter="
             code = ""
         return str(code)
 
-    #  整区匹配 \n[^#]*\s*interface\s(eth0)\s*\n\s*static\sip_address\s*=([^/]*)/(.*)\n\s*static\srouters\s*=(.*)\n\s*(static\sdomain_name_servers\s*=(.*))?\n*
-    r_netconf = re.compile("\n[^#]*interface\\s(" + dev + ")\\s*\\n\\s*static\\sip_address\\s*=(.*)/(.*)\\n\\s*static\\srouters\\s*=(.*)\\n\\s*(static\\sdomain_name_servers\\s*=(.*))?\\n*")
+    fp = path.dhcpcd_conf_rpi
+
+    #  整区匹配
+    r_netconf = re.compile(regexp.network_conf_rpi(dev))
 
     #  分段匹配
     # r_head = re.compile("[^#]interface\\s*(" + dev + ")\\s*")  #  网卡设备
