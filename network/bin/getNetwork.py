@@ -55,7 +55,7 @@ def get_network_conf(dev):
     
     if m_dns_conf:
         netconf["dns_prefer"] = m_dns_conf.group(1)
-        netconf["dns_alter"] = m_dns_conf.group(2) if len(m_dns_conf.groups() == 3)
+        netconf["dns_alter"] = m_dns_conf.group(2) if len(m_dns_conf.groups()) == 3 else ""
 
     #  返回网络设置字典
     return netconf
