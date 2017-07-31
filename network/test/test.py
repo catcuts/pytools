@@ -19,9 +19,7 @@ class unitTest(unittest.TestCase):
         pass
 
     def test_change_network_conf(self):
-        print("test_change_network_conf:")
-        print("\t" + change_network_conf(dev="eth0", ip="192.168.39.112", netmask="255.255.255.0", gateway="192.168.39.1", dns_prefer="223.5.5.5", dns_alter="223.6.6.6"))
-        # print("\t" + change_network_conf(dev="eth1", ip="", netmask="", gateway="", dns_prefer="", dns_alter=""))
+        change_network_conf(dev="eth0", ip="192.168.39.112", netmask="255.255.255.0", gateway="192.168.39.1", dns_prefer="223.5.5.5", dns_alter="223.6.6.6")
 
     def test_get_network_conf(self):
         print("test_get_network_conf:")

@@ -19,8 +19,10 @@ def get_network_conf(dev):
 
     fp = path.dhcpcd_conf_rpi
 
-    #  整区匹配 \n[^#]*\s*interface\s(eth0)\s*\n\s*static\sip_address\s*=([^/]*)/(.*)\n\s*static\srouters\s*=(.*)\n\s*(static\sdomain_name_servers\s*=(.*))?\n*
-    r_netconf = re.compile(regexp.network_conf_rpi(dev))
+    #  匹配
+    r_ip_nm_conf = re.compile(regexp.ip_nm_conf_r_rpi(dev))  # ip netmask
+    r_gw_conf = re.compile(regexp.gw_conf_r_rpi(dev))  # gateway
+    r_dnsconf = re.compile(regexp.dns_conf_r_rpi)  # dns
 
     #  分段匹配
     # r_head = re.compile("[^#]interface\\s*(" + dev + ")\\s*")  #  网卡设备

@@ -20,7 +20,7 @@ def change_network_conf(ip, netmask, gateway, dev="eth0", dns_prefer="", dns_alt
     fp = path.dhcpcd_conf_rpi
 
     #  整区匹配
-    r_netconf = re.compile(regexp.network_conf_rpi(dev))
+    r_netconf = re.compile(regexp.network_conf_w_rpi(dev))
 
     #  分段匹配
     # r_head = re.compile("[^#]interface\\s*(" + dev + ")\\s*")  #  网卡设备
@@ -61,11 +61,6 @@ def change_network_conf(ip, netmask, gateway, dev="eth0", dns_prefer="", dns_alt
     #  写入配置文件
     with open(fp, "w") as f:
         f.write(fc)
-
-    if m_netconf:
-        return "replaced old conf"
-    else:
-        return "no old conf, new a one"
         
 if __name__ == "__main__":
     pass
