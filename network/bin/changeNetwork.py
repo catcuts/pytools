@@ -4,19 +4,17 @@ import os
 import re
 
 from network.var import path, regexp
+from utils.platform_wrapper import *
+from utils.arguments import *
 
 def change_network_conf(ip, netmask, gateway, dev="eth0", dns_prefer="", dns_alter=""):
 
-    def code_netmask(netmask):  # eg: "255.255.255.0" -> "24"
-        netmask_parts = netmask.split(".")
-        code = 0
-        try:
-            for part in netmask_parts:
-                code += bin(int(part)).count("1")
-        except:
-            code = ""
-        return str(code)
+    argvs = arguments_values(locals())
 
+    if platform_is("raspbian"): change_network_conf_rpi(*argvs)  # 有点像平台策略管理器
+
+
+def change_network_conf_rpi(ip, netmask, gateway, dev="eth0", dns_prefer="", dns_alter=""):
     fp = path.dhcpcd_conf_rpi
 
     #  整区匹配
@@ -61,6 +59,18 @@ def change_network_conf(ip, netmask, gateway, dev="eth0", dns_prefer="", dns_alt
     #  写入配置文件
     with open(fp, "w") as f:
         f.write(fc)
-        
+   
+
+def code_netmask(netmask):  # eg: "255.255.255.0" -> "24"
+    netmask_parts = netmask.split(".")
+    code = 0
+    try:
+        for part in netmask_parts:
+            code += bin(int(part)).count("1")
+    except:
+        code = ""
+    return str(code)
+
+         
 if __name__ == "__main__":
     pass
