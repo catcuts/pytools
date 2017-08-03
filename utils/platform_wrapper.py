@@ -1,6 +1,5 @@
 # -*- coding:utf-8 -*-
 
-
 import subprocess
 import platform
 
@@ -21,7 +20,9 @@ def platform_is(pf):
     cur_pf = platform.platform().lower()
     if pf in cur_pf:
         return True
-    elif is_raspbian():
+    elif is_raspbian() and pf == "raspbian":
+        return True
+    else:
         return False
 
 

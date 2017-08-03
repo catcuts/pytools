@@ -2,7 +2,7 @@
 
 
 import unittest
-from utils.platform_wrapper import *
+from platform_wrapper import *
 
 class unitTest(unittest.TestCase):
     
@@ -12,10 +12,15 @@ class unitTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test(self):
-        self.assertEquals(is_raspbian(), False)
-        self.assertEquals(platform_is("windows"), True)
-        self.assertEquals(platform_name(), "windows")
+#    def test_in_windows(self):
+#        self.assertEquals(is_raspbian(), False)
+#        self.assertEquals(platform_is("windows"), True)
+#        self.assertEquals(platform_name(), "windows")
+
+    def test_in_raspbian(self):
+#        self.assertEquals(is_raspbian(), True)
+#        self.assertEquals(platform_is("raspbian"), True)
+        self.assertEquals(platform_name(), "raspbian")
 
 if __name__ == '__main__':
     unittest.main()
