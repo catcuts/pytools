@@ -8,30 +8,26 @@ import re
 import time
 
 ip_part123 = "192.168.38."
-supp_opts_text = ["0)返回","1)关机","2)重启","3)指定脚本","4)逐条输入"]
-login_timout = 10
+supp_opts_text = ["00)返回","01)关机","02)重启","03)指定脚本","04)逐条输入"]
+login_timeout = 10
 
-def ssh_client(ip,username,passwd,cmd):
-    pass
-#     try:
-#         ssh = paramiko.SSHClient()
-#         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-#         ssh.connect(ip,22,username,passwd,timeout=5)
-#         for m in cmd:
-#             stdin, stdout, stderr = ssh.exec_command(m)
-# #           stdin.write("Y")   #简单交互，输入 ‘Y’ 
-#             out = stdout.readlines()
-#             #屏幕输出
-#             for o in out:
-#                 print o,
-#         print '%s\tOK\n'%(ip)
-#         ssh.close()
-#     except :
-#         print '%s\tError\n'%(ip)
+global cmder_status,cmder_count
+cmder_status = []
+cmder_count = 0
+def ssh_cmder(ip,ssh,cmds):
+    if cmder_status: cmder_status[-1] = cmder_status[-1].replace(" ...","")
+    try:
+        for cmd in cmds:
+            stdin, stdout, stderr = ssh.exec_command(cmd)
+        ssh.close()
+        cmder_status.append("%s(成功) ..." %ip)
+    except:
+        cmder_status.append("%s(失败) ..." %ip)
+    
+    print_inline(plist=cmder_status,stop=not cmder_count)
 
-
-def ssh_cmder(ssh,cmds):
-    pass
+    global cmder_count
+    cmder_count -= 1
 
 def print_inline(preamble="",plist=[],delay=0,stop=False):
 
@@ -65,10 +61,10 @@ if __name__ == '__main__':
 
                 cmds = []
 
-                if cmd_nr == "0": input_ip = True
-                elif cmd_nr == "1": cmds.append("sudo shutdown -h now")
-                elif cmd_nr == "2": cmds.append("sudo shutdown -r now")
-                elif cmd_nr == "3": 
+                if cmd_nr == "00": input_ip = True
+                elif cmd_nr == "01": cmds.append("sudo shutdown -h now")
+                elif cmd_nr == "02": cmds.append("sudo shutdown -r now")
+                elif cmd_nr == "03": 
                     input_cmd_fp = True
                     while input_cmd_fp:
                         input_cmd_fp = False
@@ -90,7 +86,7 @@ if __name__ == '__main__':
                 threads = []  # 多线程
 
                 login_status = list(map(lambda x: x + "(...)",ip_part4s))
-                ssh_co = []
+                ssh_co = {}
                 ssh_nc = []
                 connect_ssh = True
                 while connect_ssh:
@@ -100,9 +96,9 @@ if __name__ == '__main__':
                         try:
                             ssh = paramiko.SSHClient()
                             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                            ssh.connect(ip,22,username,passwd,login_timout=10)
+                            ssh.connect(ip,22,username,passwd,timeout=login_timeout)
                             login_status[i] = login_status[i].replace("(...)","(成功)")
-                            ssh_co.append(ssh)
+                            ssh_co[ip_part4s[i]] = ssh
                         except:
                             login_status[i] = login_status[i].replace("(...)","(失败)")
                             ssh_nc.append(ip_part4s[i])
@@ -122,10 +118,11 @@ if __name__ == '__main__':
                             pass
                         else:
                             exit()
-
-                print("批量操作中 ...")
-                for ssh in ssh_co:
-                    th = threading.Thread(target=ssh_cmder,args=(ssh,cmds))
+ 
+                print_inline(plist="批量操作中 ...",delay=1)
+                for ip_p4 in ssh_co:
+                    cmder_count += 1
+                    th = threading.Thread(target=ssh_cmder,args=(ip_p4,ssh_co[ip_p4],cmds))
                     th.start()
 
     except KeyboardInterrupt:
