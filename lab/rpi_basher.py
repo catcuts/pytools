@@ -12,11 +12,11 @@ ip_part123 = "192.168.38."
 supp_opts_text = ["\t00)返回","\t01)关机","\t02)重启","\t03)指定脚本","\t04)逐条输入"]
 login_timeout = 10
 
-global cmder_count, cmder_status
 cmder_count = 0
 cmder_status = []
 
 def ssh_cmder(ip,ssh,cmds):
+    global cmder_count, cmder_status
     if cmder_status: cmder_status[-1] = cmder_status[-1].replace(" ...","")
     try:
         for cmd in cmds:
