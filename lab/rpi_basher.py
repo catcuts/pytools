@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*-
+#!/usr/bin/env python3
 
 import paramiko
 import threading
@@ -8,12 +9,13 @@ import re
 import time
 
 ip_part123 = "192.168.38."
-supp_opts_text = ["00)返回","01)关机","02)重启","03)指定脚本","04)逐条输入"]
+supp_opts_text = ["\t00)返回","\t01)关机","\t02)重启","\t03)指定脚本","\t04)逐条输入"]
 login_timeout = 10
 
-global cmder_status,cmder_count
-cmder_status = []
+global cmder_count, cmder_status
 cmder_count = 0
+cmder_status = []
+
 def ssh_cmder(ip,ssh,cmds):
     if cmder_status: cmder_status[-1] = cmder_status[-1].replace(" ...","")
     try:
@@ -26,7 +28,6 @@ def ssh_cmder(ip,ssh,cmds):
     
     print_inline(plist=cmder_status,stop=not cmder_count)
 
-    global cmder_count
     cmder_count -= 1
 
 def print_inline(preamble="",plist=[],delay=0,stop=False):
@@ -108,7 +109,7 @@ if __name__ == '__main__':
                     print_inline(stop=True)
 
                     if ssh_nc:
-                        opt_ssh_nc = input("有 %d 粒树莓派登录失败，你是选择：\n1)重试\n2)忽略\n3)取消\n输入操作序号：" %len(ssh_nc))
+                        opt_ssh_nc = input("有 %d 粒树莓派登录失败，你是选择：\n\t1)重试\n\t2)忽略\n\t3)取消\n输入操作序号：" %len(ssh_nc))
                         if opt_ssh_nc == "1":
                             connect_ssh = True
                             ip_part4s = ssh_nc
@@ -119,7 +120,8 @@ if __name__ == '__main__':
                         else:
                             exit()
  
-                print_inline(plist="批量操作中 ...",delay=1)
+                print_inline("批量操作中 ...",delay=1)
+
                 for ip_p4 in ssh_co:
                     cmder_count += 1
                     th = threading.Thread(target=ssh_cmder,args=(ip_p4,ssh_co[ip_p4],cmds))
@@ -128,3 +130,4 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("bye")
         exit()
+
