@@ -7,7 +7,7 @@ import subprocess
 
 from network.var import path, regexp, cmd
 
-def get_network_conf(dev):
+def get_network_conf_rpi(dev):
 
     def decode_netmask(code):  # eg: "24" -> "255.255.255.0"
         code = code.replace("/", "")

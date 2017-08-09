@@ -3,8 +3,8 @@
 
 import unittest
 import os
-from network.bin.changeNetwork import change_network_conf
-from network.bin.getNetwork import get_network_conf
+from network.bin.change_network import change_network_conf
+from network.bin.get_network import get_network_conf
 
 class unitTest(unittest.TestCase):
     
