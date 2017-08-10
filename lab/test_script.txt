@@ -1,4 +1,5 @@
-su root -p hhh
+su
+expect: root@raspberrypi:/home/pi#\s+
 echo -e "#deb http://mirrordirector.raspbian.org/raspbian/ jessie main contrib non-free rpi\n# Uncomment line below then 'apt-get update' to enable 'apt-get source'\n#deb-src http://archive.raspbian.org/raspbian/ jessie main contrib non-free rpi\ndeb http://archive.raspbian.org/raspbian jessie main contrib non-free\ndeb-src http://archive.raspbian.org/raspbian jessie main contrib non-free" > /etc/apt/sources.list
 sudo apt-get update
 sudo apt-get upgrade

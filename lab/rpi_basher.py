@@ -7,6 +7,7 @@ import sys
 import os
 import re
 import time
+from paramiko_expect import SSHClientInteraction
 
 ip_part123 = "192.168.38."
 supp_opts_text = ["\t00)返回","\t01)关机","\t02)重启","\t03)指定脚本","\t04)逐条输入"]
@@ -15,16 +16,25 @@ login_timeout = 10
 cmder_count = 0
 cmder_status = []
 
+su_passwd = "hhh"
+su_prompt = "root@raspberrypi:/home/pi#\s+"
+
 def ssh_cmder(ip,ssh,cmds):
     global cmder_count, cmder_status
     if cmder_status: cmder_status[-1] = cmder_status[-1].replace(" ...","")
     try:
+        interact = SSHClientInteraction(ssh, timeout=10, display=False)
         for cmd in cmds:
-            stdin, stdout, stderr = ssh.exec_command(cmd)
+            m = re.search(r"^expect:\s+(.*)", cmd)
+            if m:
+                expect = m.group(1)
+                interact.expect(cmd)
+            else:
+                interact.send(cmd)
         ssh.close()
         cmder_status.append("%s(成功) ..." %ip)
     except:
-        cmder_status.append("%s(失败) ..." %ip)
+        cmder_status.append(("%s(失败) ...\n" + interact.current_output_clean + "\n") %ip).
     
     print_inline(plist=cmder_status,stop=not cmder_count)
 
@@ -120,7 +130,7 @@ if __name__ == '__main__':
                         else:
                             exit()
  
-                print_inline("批量操作中 ...",delay=1)
+                print_inline(preamble="批量操作中 ...",plist=[""],delay=1)
 
                 for ip_p4 in ssh_co:
                     cmder_count += 1
