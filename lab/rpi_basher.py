@@ -9,7 +9,7 @@ import re
 import time
 from paramiko_expect import SSHClientInteraction
 
-ip_part123 = "192.168.38."
+ip_part123 = "192.168.116."
 supp_opts_text = ["\t00)返回","\t01)关机","\t02)重启","\t03)指定脚本","\t04)逐条输入"]
 login_timeout = 10
 
@@ -19,26 +19,64 @@ cmder_status = []
 su_passwd = "hhh"
 su_prompt = "root@raspberrypi:/home/pi#\s+"
 
+default_expect = "pi@raspberrypi.*"
+
 def ssh_cmder(ip,ssh,cmds):
     global cmder_count, cmder_status
-    if cmder_status: cmder_status[-1] = cmder_status[-1].replace(" ...","")
+    
+    if cmder_status: 
+        cmder_status[-1] = cmder_status[-1].replace(" ...","")
+    cmder_count -= 1
+
     try:
         interact = SSHClientInteraction(ssh, timeout=10, display=False)
+        interact.expect(default_expect)
+        # cmds = ['ls']
+        count = 0
+        m = False
+        failure_caused_by_shutdown = False
         for cmd in cmds:
-            m = re.search(r"^expect:\s+(.*)", cmd)
+            if ("shutdown" in cmd) or ("reboot" in cmd):
+                failure_caused_by_shutdown = True
             if m:
-                expect = m.group(1)
-                interact.expect(cmd)
+                interact.expect(m.group(1))
             else:
-                interact.send(cmd)
+                interact.send(cmd)  # 每个 send 后必须跟 expect
+                if count < (len(cmds) - 1):
+                    m = re.search(r"^expect:\s+(.*)", cmds[count + 1])
+                if not m:
+                    interact.expect(default_expect)
+                cmd_output_uname = interact.current_output_clean
+                print("cmd_output_uname: %s" %cmd_output_uname)
+            count+=1
         ssh.close()
         cmder_status.append("%s(成功) ..." %ip)
     except:
-        cmder_status.append(("%s(失败) ...\n" + interact.current_output_clean + "\n") %ip).
-    
-    print_inline(plist=cmder_status,stop=not cmder_count)
+        ssh.close()
+        if failure_caused_by_shutdown:
+            cmder_status.append("%s(成功) ..." %ip)
+        else:
+            cmder_status.append(("%s(失败) ...\n" + interact.current_output_clean + "\n") %ip)
 
-    cmder_count -= 1
+    print_inline(plist=cmder_status)
+
+    if cmder_count == 0:
+        print_inline(stop=True)
+
+    if cmder_count == 0:
+        next_wish = input("选择继续(y) 或 退出(N)：")
+        input_wish = True
+        while input_wish:
+            input_wish = False
+            if next_wish == "y" or next_wish == "Y":
+                main()
+            elif next_wish == "N":
+                exit()
+            elif next_wish == "n":
+                next_wish = input("用大写 N 退出，或选择继续(y)：")
+                input_wish = True
+            else:
+                input_wish = True
 
 def print_inline(preamble="",plist=[],delay=0,stop=False):
 
@@ -54,7 +92,8 @@ def print_inline(preamble="",plist=[],delay=0,stop=False):
             sys.stdout.flush()  # 暂时输出
             time.sleep(delay)
 
-if __name__ == '__main__':
+def main():
+    global cmder_count
     try:
         print("树莓派 IP 地址前 3 段已被设定为 192.168.38。可根据需要通过 ip_part123 来修改。")
         
@@ -140,3 +179,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("bye")
         exit()
+
+if __name__ == '__main__':
+    main()
