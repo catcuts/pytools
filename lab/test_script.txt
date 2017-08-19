@@ -3,3 +3,23 @@ expect: root@raspberrypi:/home/pi#\s+
 echo -e "#deb http://mirrordirector.raspbian.org/raspbian/ jessie main contrib non-free rpi\n# Uncomment line below then 'apt-get update' to enable 'apt-get source'\n#deb-src http://archive.raspbian.org/raspbian/ jessie main contrib non-free rpi\ndeb http://archive.raspbian.org/raspbian jessie main contrib non-free\ndeb-src http://archive.raspbian.org/raspbian jessie main contrib non-free" > /etc/apt/sources.list
 sudo apt-get update
 sudo apt-get upgrade
+sudo apt-get install -y ntpdate
+tzselect
+expected: "#?\s+"
+5
+expected: "#?\s+"
+9
+expected: "#?\s+"
+1
+expected: "#?\s+"
+1
+expected: "root@raspberrypi:/home/pi#\s+"
+sudo ntpdate cn.pool.ntp.org
+expected: "root@raspberrypi:/home/pi#\s+"
+cat << EOF >> .profile
+expected: ">\s+"
+TZ='Asia/Shanghai'; export TZ
+expected: ">\s+"
+EOF
+expected: "root@raspberrypi:/home/pi#\s+"
+sudo reboot
